@@ -9,6 +9,9 @@ pub fn main() !void {
 
     std.debug.print("\n=== Autodiff Benchmark ===\n\n", .{});
 
+    // Print CPU info
+    printCpuInfo(allocator);
+
     // Benchmark 1: Simple expression (forward + backward)
     try benchSimpleExpr(allocator);
 
@@ -167,4 +170,59 @@ fn benchGradientDescent(allocator: std.mem.Allocator) !void {
     std.debug.print("Gradient descent ({d} steps x {d} runs):\n", .{ steps, iterations });
     std.debug.print("  {d} total steps in {d:.2} ms\n", .{ total_steps, elapsed_ms });
     std.debug.print("  {d:.0} steps/sec\n\n", .{steps_per_sec});
+}
+
+fn printCpuInfo(allocator: std.mem.Allocator) void {
+    // Try to read CPU model from /proc/cpuinfo (Linux)
+    const file = std.fs.openFileAbsolute("/proc/cpuinfo", .{}) catch {
+        std.debug.print("CPU: unknown\n\n", .{});
+        return;
+    };
+    defer file.close();
+
+    const content = file.readToEndAlloc(allocator, 1024 * 1024) catch {
+        std.debug.print("CPU: unknown\n\n", .{});
+        return;
+    };
+    defer allocator.free(content);
+
+    // Find "model name" line (x86) or "CPU architecture" (ARM)
+    var lines = std.mem.splitScalar(u8, content, '\n');
+    var cpu_arch: ?[]const u8 = null;
+    var cpu_part: ?[]const u8 = null;
+
+    while (lines.next()) |line| {
+        // x86: model name
+        if (std.mem.startsWith(u8, line, "model name")) {
+            if (std.mem.indexOf(u8, line, ":")) |idx| {
+                const model = std.mem.trim(u8, line[idx + 1 ..], " \t");
+                std.debug.print("CPU: {s}\n\n", .{model});
+                return;
+            }
+        }
+        // ARM: CPU architecture
+        if (std.mem.startsWith(u8, line, "CPU architecture")) {
+            if (std.mem.indexOf(u8, line, ":")) |idx| {
+                cpu_arch = std.mem.trim(u8, line[idx + 1 ..], " \t");
+            }
+        }
+        // ARM: CPU part
+        if (std.mem.startsWith(u8, line, "CPU part")) {
+            if (std.mem.indexOf(u8, line, ":")) |idx| {
+                cpu_part = std.mem.trim(u8, line[idx + 1 ..], " \t");
+            }
+        }
+    }
+
+    // ARM fallback
+    if (cpu_arch) |arch| {
+        if (cpu_part) |part| {
+            std.debug.print("CPU: ARMv{s} (part {s})\n\n", .{ arch, part });
+        } else {
+            std.debug.print("CPU: ARMv{s}\n\n", .{arch});
+        }
+        return;
+    }
+
+    std.debug.print("CPU: unknown\n\n", .{});
 }
