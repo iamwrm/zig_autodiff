@@ -1,0 +1,17 @@
+# Zig
+zig-out/
+.zig-cache/
+
+# Pixi
+.pixi/
+
+# Editor
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

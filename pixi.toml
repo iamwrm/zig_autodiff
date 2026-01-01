@@ -1,0 +1,11 @@
+[workspace]
+authors = ["Ren Wang <iamwrm@gmail.com>"]
+channels = ["conda-forge"]
+name = "try_mm"
+platforms = ["linux-aarch64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+zig = ">=0.15.2,<0.16"
