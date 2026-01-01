@@ -32,6 +32,21 @@ The project includes three demonstrations:
 2. **Gradient descent**: Minimizing `f(x) = (x-3)²`
 3. **Neuron training**: Learning OR function
 
+## Benchmarks
+
+Run benchmarks (compiled with ReleaseFast):
+
+```bash
+pixi run zig build bench
+```
+
+| Benchmark | Performance |
+|-----------|-------------|
+| Simple expr (f = x*y + z²) | ~17M ops/sec |
+| Deep chain (depth=100) | ~316K ops/sec |
+| Wide graph (width=100) | ~193K ops/sec |
+| Gradient descent | ~21M steps/sec |
+
 ## Project Structure
 
 ```
@@ -42,7 +57,8 @@ The project includes three demonstrations:
     ├── ops.zig        # Operation enum
     ├── value.zig      # Core Value struct with forward operations
     ├── engine.zig     # Backward pass with topological sort
-    └── main.zig       # Example applications
+    ├── main.zig       # Example applications
+    └── bench.zig      # Performance benchmarks
 ```
 
 ## Example Output
