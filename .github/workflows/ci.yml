@@ -17,3 +17,6 @@ jobs:
 
       - name: Build and Run
         run: ./run.sh
+
+      - name: Run Benchmarks
+        run: pixi run zig build bench
